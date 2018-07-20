@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+              sh '''
+                echo 'Building..'
+                chmod +x installdeps.sh
+                ./installdeps.sh 
+                chmod +x setupDocker.sh
+                ./setupDocker.sh
+              
+               '''
+            }
+        }
+        stage('Test') {
+            steps {
+            sh '''
+            echo 'Testing..'
+            cd ansible
+            ansible-playbook -i inventory/local playbook.yml
+            cd ../maven/testinfra
+            mvn clean install
+            
+                '''
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'ls -la'
+                echo 'Deploying....'
+            }
+        }
+    
+    }
+}
